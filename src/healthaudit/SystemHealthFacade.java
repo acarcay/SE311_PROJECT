@@ -23,7 +23,7 @@ public class SystemHealthFacade {
      *   <li>Command — queue and run all audit / optimisation tasks.</li>
      * </ol>
      *
-     * @param osType   "Linux" or "Windows"
+     * @param osType   "Linux", "Windows", or "macOS"
      * @param isRemote true → remote server check; false → local machine check
      */
     public void runFullAudit(String osType, boolean isRemote) {
@@ -33,6 +33,8 @@ public class SystemHealthFacade {
         SystemAPI adapter;
         if ("Linux".equalsIgnoreCase(osType)) {
             adapter = new LinuxAdapter();
+        } else if ("macOS".equalsIgnoreCase(osType)) {
+            adapter = new MacOSAdapter();
         } else {
             adapter = new WindowsAdapter();
         }
@@ -83,5 +85,10 @@ public class SystemHealthFacade {
         System.out.println("║   Scenario 2  ►  Windows  •  Local Machine  ║");
         System.out.println("╚══════════════════════════════════════════════╝");
         facade.runFullAudit("Windows", false);
+        System.out.println();
+        System.out.println("╔══════════════════════════════════════════════╗");
+        System.out.println("║   Scenario 3  ►  macOS  •  Local Machine    ║");
+        System.out.println("╚══════════════════════════════════════════════╝");
+        facade.runFullAudit("macOS", false);
     }
 }

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Command interface — every auditable task exposes a single execute() method.
  */
-public interface SystemTask {
+interface SystemTask {
     void execute();
 }
 

@@ -13,7 +13,7 @@ package healthaudit;
  * sequential steps.  Subclasses MUST provide their own setup(); the
  * remaining four steps carry sensible default implementations.
  */
-public abstract class SystemChecker {
+abstract class SystemChecker {
 
     /**
      * Template method — final so that no subclass can alter the order

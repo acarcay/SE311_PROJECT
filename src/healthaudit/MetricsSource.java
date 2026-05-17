@@ -3,15 +3,15 @@ package healthaudit;
 // ============================================================================
 // ADAPTER PATTERN
 // Purpose: Converts the incompatible interfaces of OS-specific metric APIs
-//          (Linux and Windows) into the unified SystemAPI interface that
-//          the rest of the application expects.
+//          (Linux, Windows, and macOS) into the unified SystemAPI interface
+//          that the rest of the application expects.
 // ============================================================================
 
 /**
  * Target interface — the uniform contract that all metric consumers depend on.
  * Provides OS-agnostic access to system data, memory usage, and process usage.
  */
-public interface SystemAPI {
+interface SystemAPI {
     String getSystemData();
     String getMemoryUsage();
     String getProcessUsage();
@@ -115,6 +115,56 @@ class WindowsAdapter implements SystemAPI {
     @Override
     public String getProcessUsage() {
         String raw = windowsAPI.GetDiskFreeSpace();
+        return "Disk/Process: " + raw;
+    }
+}
+// ---------------------------------------------------------------------------
+// MACOS ADAPTEE + ADAPTER
+// ---------------------------------------------------------------------------
+
+/**
+ * Adaptee — simulates the native macOS Darwin/XNU kernel calls that return
+ * raw, platform-specific data structures.
+ */
+class MacOSAPI {
+    String sysctlbynameKernOsproductversion() {
+        System.out.println("  [MacOSAPI] Calling sysctlbyname(\"kern.osproductversion\")...");
+        return "macOS 14.4.1 Sonoma (Darwin 23.4.0) arm64";
+    }
+
+    String hostStatistics64() {
+        System.out.println("  [MacOSAPI] Calling host_statistics64(HOST_VM_INFO64)...");
+        return "PhysicalMemory: 16384 MB | WiredMemory: 3072 MB | ActiveMemory: 8192 MB | FreeMemory: 5120 MB";
+    }
+
+    String getfsstat() {
+        System.out.println("  [MacOSAPI] Calling getfsstat() on /Volumes/Macintosh HD...");
+        return "TotalBlocks: 976562500 | FreeBlocks: 244140625 | BlockSize: 4096";
+    }
+}
+
+/**
+ * Adapter — wraps MacOSAPI and translates its raw outputs into the
+ * normalized SystemAPI contract.
+ */
+class MacOSAdapter implements SystemAPI {
+    private final MacOSAPI macOSAPI = new MacOSAPI();
+
+    @Override
+    public String getSystemData() {
+        String raw = macOSAPI.sysctlbynameKernOsproductversion();
+        return "System: " + raw;
+    }
+
+    @Override
+    public String getMemoryUsage() {
+        String raw = macOSAPI.hostStatistics64();
+        return "Memory: " + raw;
+    }
+
+    @Override
+    public String getProcessUsage() {
+        String raw = macOSAPI.getfsstat();
         return "Disk/Process: " + raw;
     }
 }

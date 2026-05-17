@@ -15,7 +15,7 @@ import java.util.List;
  * Component interface — the common contract for every node in the
  * hardware tree, whether it is a single device or a composite group.
  */
-public interface HardwareComponent {
+interface HardwareComponent {
     void checkStatus();
 }
 
