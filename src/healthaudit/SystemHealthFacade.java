@@ -45,21 +45,18 @@ public class SystemHealthFacade {
             System.out.println("  Detected OS: Windows → WindowsAdapter selected.");
         }
 
-        // ── Phase 2: Composite ───────────────────────────────────────────
+        // ── Phase 2 + 3: Composite & Template Method ─────────────────────
+        // Computer (Composite root) is passed into the checker so that
+        // collectData() traverses the hardware tree AND reads OS metrics
+        // in one unified step — Composite and Adapter meet inside Template Method.
         System.out.println();
-        System.out.println("═══ Phase 2: Composite — Hardware Tree Check ═══");
+        System.out.println("═══ Phase 2+3: Template Method — Health Check (Composite + Adapter inside) ═══");
         Computer computer = new Computer();
-        computer.checkStatus();
-
-        // ── Phase 3: Template Method ─────────────────────────────────────
-        System.out.println();
-        System.out.println("═══ Phase 3: Template Method — Health Check ═══");
-        System.out.println("  (collectData step will use the OS adapter from Phase 1)");
         SystemChecker checker;
         if (isRemote) {
-            checker = new RemoteServerChecker(adapter);
+            checker = new RemoteServerChecker(adapter, computer);
         } else {
-            checker = new LocalMachineChecker(adapter);
+            checker = new LocalMachineChecker(adapter, computer);
         }
         checker.runCheck();
 

@@ -13,17 +13,22 @@ package healthaudit;
  * sequential steps.  Subclasses MUST provide their own setup(); the
  * remaining four steps carry sensible default implementations.
  *
- * The injected {@link SystemAPI} adapter lets collectData() pull real
- * OS-specific metrics, directly connecting the Adapter pattern into this
- * Template Method algorithm.
+ * Receives both a {@link SystemAPI} adapter (Adapter pattern) and a
+ * {@link HardwareComponent} root (Composite pattern) so that collectData()
+ * gathers OS-level metrics AND traverses the full hardware tree in a single
+ * unified step — directly bridging three patterns inside one algorithm.
  */
 abstract class SystemChecker {
 
-    /** The OS adapter used in the collectData step (Adapter pattern bridge). */
+    /** OS adapter — provides platform-agnostic software metrics (Adapter). */
     protected final SystemAPI metricsSource;
 
-    SystemChecker(SystemAPI metricsSource) {
+    /** Root of the hardware tree — traversed via Composite checkStatus(). */
+    protected final HardwareComponent hardwareRoot;
+
+    SystemChecker(SystemAPI metricsSource, HardwareComponent hardwareRoot) {
         this.metricsSource = metricsSource;
+        this.hardwareRoot  = hardwareRoot;
     }
 
     /**
@@ -43,14 +48,16 @@ abstract class SystemChecker {
 
     /**
      * Step 2: Gather raw metrics from the target machine.
-     * Delegates to the injected SystemAPI adapter so that the same
-     * algorithm works regardless of the underlying OS.
+     * Calls the Adapter for OS-level metrics, then traverses the Composite
+     * hardware tree — connecting all three patterns in a single step.
      */
     protected void collectData() {
-        System.out.println("  [Step 2] Collecting system metrics via OS adapter...");
+        System.out.println("  [Step 2] Collecting OS metrics via adapter...");
         System.out.println("           " + metricsSource.getSystemData());
         System.out.println("           " + metricsSource.getMemoryUsage());
         System.out.println("           " + metricsSource.getProcessUsage());
+        System.out.println("  [Step 2] Traversing hardware tree via Composite...");
+        hardwareRoot.checkStatus();
     }
 
     /** Step 3: Validate collected data for completeness and integrity. */
@@ -79,8 +86,8 @@ abstract class SystemChecker {
  */
 class LocalMachineChecker extends SystemChecker {
 
-    LocalMachineChecker(SystemAPI metricsSource) {
-        super(metricsSource);
+    LocalMachineChecker(SystemAPI metricsSource, HardwareComponent hardwareRoot) {
+        super(metricsSource, hardwareRoot);
     }
 
     @Override
@@ -96,8 +103,8 @@ class LocalMachineChecker extends SystemChecker {
  */
 class RemoteServerChecker extends SystemChecker {
 
-    RemoteServerChecker(SystemAPI metricsSource) {
-        super(metricsSource);
+    RemoteServerChecker(SystemAPI metricsSource, HardwareComponent hardwareRoot) {
+        super(metricsSource, hardwareRoot);
     }
 
     @Override
