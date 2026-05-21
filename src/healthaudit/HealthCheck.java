@@ -12,8 +12,19 @@ package healthaudit;
  * Abstract class that locks the health-check algorithm into exactly five
  * sequential steps.  Subclasses MUST provide their own setup(); the
  * remaining four steps carry sensible default implementations.
+ *
+ * The injected {@link SystemAPI} adapter lets collectData() pull real
+ * OS-specific metrics, directly connecting the Adapter pattern into this
+ * Template Method algorithm.
  */
 abstract class SystemChecker {
+
+    /** The OS adapter used in the collectData step (Adapter pattern bridge). */
+    protected final SystemAPI metricsSource;
+
+    SystemChecker(SystemAPI metricsSource) {
+        this.metricsSource = metricsSource;
+    }
 
     /**
      * Template method — final so that no subclass can alter the order
@@ -30,9 +41,16 @@ abstract class SystemChecker {
     /** Step 1: Prepare the environment / connection. (abstract — must override) */
     protected abstract void setup();
 
-    /** Step 2: Gather raw metrics from the target machine. */
+    /**
+     * Step 2: Gather raw metrics from the target machine.
+     * Delegates to the injected SystemAPI adapter so that the same
+     * algorithm works regardless of the underlying OS.
+     */
     protected void collectData() {
-        System.out.println("  [Step 2] Collecting system metrics...");
+        System.out.println("  [Step 2] Collecting system metrics via OS adapter...");
+        System.out.println("           " + metricsSource.getSystemData());
+        System.out.println("           " + metricsSource.getMemoryUsage());
+        System.out.println("           " + metricsSource.getProcessUsage());
     }
 
     /** Step 3: Validate collected data for completeness and integrity. */
@@ -61,6 +79,10 @@ abstract class SystemChecker {
  */
 class LocalMachineChecker extends SystemChecker {
 
+    LocalMachineChecker(SystemAPI metricsSource) {
+        super(metricsSource);
+    }
+
     @Override
     protected void setup() {
         System.out.println("  [Step 1] Setting up local machine check...");
@@ -73,6 +95,10 @@ class LocalMachineChecker extends SystemChecker {
  * establishing a socket connection before proceeding.
  */
 class RemoteServerChecker extends SystemChecker {
+
+    RemoteServerChecker(SystemAPI metricsSource) {
+        super(metricsSource);
+    }
 
     @Override
     protected void setup() {

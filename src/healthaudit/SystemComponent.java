@@ -53,16 +53,6 @@ class NIC implements HardwareComponent {
     }
 }
 
-/**
- * Leaf — represents a single Disk drive.
- */
-class Disk implements HardwareComponent {
-    @Override
-    public void checkStatus() {
-        System.out.println("    [Disk] Status: 480 GB used of 512 GB, SMART OK.");
-    }
-}
-
 // ---------------------------------------------------------------------------
 // COMPOSITE NODES
 // ---------------------------------------------------------------------------

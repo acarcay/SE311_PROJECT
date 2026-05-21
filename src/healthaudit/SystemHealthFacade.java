@@ -1,3 +1,6 @@
+// GROUP MEMBER 1 - [İSİM SOYİSİM]
+// GROUP MEMBER 2 - [İSİM SOYİSİM]
+// System Health and Audit Tool
 package healthaudit;
 
 // ============================================================================
@@ -29,18 +32,18 @@ public class SystemHealthFacade {
     public void runFullAudit(String osType, boolean isRemote) {
 
         // ── Phase 1: Adapter ─────────────────────────────────────────────
-        System.out.println("═══ Phase 1: Adapter — Fetching OS Metrics ═══");
+        System.out.println("═══ Phase 1: Adapter — OS Detection ═══");
         SystemAPI adapter;
         if ("Linux".equalsIgnoreCase(osType)) {
             adapter = new LinuxAdapter();
+            System.out.println("  Detected OS: Linux → LinuxAdapter selected.");
         } else if ("macOS".equalsIgnoreCase(osType)) {
             adapter = new MacOSAdapter();
+            System.out.println("  Detected OS: macOS → MacOSAdapter selected.");
         } else {
             adapter = new WindowsAdapter();
+            System.out.println("  Detected OS: Windows → WindowsAdapter selected.");
         }
-        System.out.println(adapter.getSystemData());
-        System.out.println(adapter.getMemoryUsage());
-        System.out.println(adapter.getProcessUsage());
 
         // ── Phase 2: Composite ───────────────────────────────────────────
         System.out.println();
@@ -51,11 +54,12 @@ public class SystemHealthFacade {
         // ── Phase 3: Template Method ─────────────────────────────────────
         System.out.println();
         System.out.println("═══ Phase 3: Template Method — Health Check ═══");
+        System.out.println("  (collectData step will use the OS adapter from Phase 1)");
         SystemChecker checker;
         if (isRemote) {
-            checker = new RemoteServerChecker();
+            checker = new RemoteServerChecker(adapter);
         } else {
-            checker = new LocalMachineChecker();
+            checker = new LocalMachineChecker(adapter);
         }
         checker.runCheck();
 
