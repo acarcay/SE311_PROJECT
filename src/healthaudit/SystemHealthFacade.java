@@ -61,11 +61,13 @@ public class SystemHealthFacade {
         checker.runCheck();
 
         // ── Phase 4: Command ─────────────────────────────────────────────
+        // Commands receive the same adapter (Adapter) and hardware root
+        // (Composite) built in earlier phases — completing the pattern chain.
         System.out.println();
         System.out.println("═══ Phase 4: Command — Audit Tasks ═══");
         TaskInvoker invoker = new TaskInvoker();
-        invoker.addTask(new SecurityAuditor());
-        invoker.addTask(new ResourceOptimizer());
+        invoker.addTask(new SecurityAuditor(adapter, computer));
+        invoker.addTask(new ResourceOptimizer(adapter, computer));
         invoker.executeAll();
     }
 
